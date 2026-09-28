@@ -1,487 +1,132 @@
-// ==========================================
-// BAC BO SIGNAL
-// app.js
-// ==========================================
-
 let history = [];
 
-// Número máximo de resultados guardados
-const MAX_HISTORY = 100;
-
-// ------------------------------------------
-// Inicialização
-// ------------------------------------------
-
-document.addEventListener("DOMContentLoaded", () => {
-    loadHistory();
-    updateInterface();
-});
-
-// ------------------------------------------
-// Adicionar resultado
-// ------------------------------------------
-
 function addResult(result) {
-
-    if (!["P", "B", "E"].includes(result)) {
-        return;
-    }
-
-    history.push(result);
-
-    if (history.length > MAX_HISTORY) {
-        history.shift();
-    }
-
-    saveHistory();
-    updateInterface();
+  history.push(result);
+  update();
 }
-
-// ------------------------------------------
-// Desfazer último resultado
-// ------------------------------------------
 
 function undoResult() {
-
-    if (history.length === 0) {
-        return;
-    }
-
-    history.pop();
-
-    saveHistory();
-    updateInterface();
+  history.pop();
+  update();
 }
-
-// ------------------------------------------
-// Limpar histórico
-// ------------------------------------------
 
 function clearHistory() {
-
-    if (history.length === 0) {
-        return;
-    }
-
-    const confirmar = confirm(
-        "Tem a certeza que deseja apagar todo o histórico?"
-    );
-
-    if (!confirmar) {
-        return;
-    }
-
+  if (confirm("Apagar todo o histórico?")) {
     history = [];
-
-    saveHistory();
-    updateInterface();
+    update();
+  }
 }
 
-// ------------------------------------------
-// Atualizar interface
-// ------------------------------------------
-
-function updateInterface() {
-
-    updateHistory();
-    updateStats();
-    updateSignal();
+function count(value) {
+  return history.filter(x => x === value).length;
 }
 
-// ------------------------------------------
-// Histórico visual
-// ------------------------------------------
+function update() {
 
-function updateHistory() {
+  document.getElementById("playerCount").textContent =
+    count("P");
 
-    const container = document.getElementById("history");
+  document.getElementById("bankerCount").textContent =
+    count("B");
 
-    if (!container) {
-        return;
-    }
+  document.getElementById("tieCount").textContent =
+    count("E");
 
-    container.innerHTML = "";
-
-    if (history.length === 0) {
-
-        container.innerHTML = `
-            <div class="empty">
-                Nenhum resultado registado
-            </div>
-        `;
-
-        return;
-    }
-
-    history.forEach(result => {
-
-        const ball = document.createElement("div");
-
-        ball.classList.add("ball");
-
-        if (result === "P") {
-            ball.classList.add("p");
-        }
-
-        if (result === "B") {
-            ball.classList.add("b");
-        }
-
-        if (result === "E") {
-            ball.classList.add("e");
-        }
-
-        ball.textContent = result;
-
-        container.appendChild(ball);
-    });
+  showHistory();
+  calculateSignal();
 }
 
-// ------------------------------------------
-// Estatísticas
-// ------------------------------------------
+function showHistory() {
 
-function updateStats() {
+  const box = document.getElementById("history");
 
-    const player = countResult("P");
-    const banker = countResult("B");
-    const tie = countResult("E");
+  box.innerHTML = "";
 
-    const playerElement =
-        document.getElementById("playerCount");
+  if (history.length === 0) {
 
-    const bankerElement =
-        document.getElementById("bankerCount");
+    box.innerHTML =
+      '<div class="empty">Nenhum resultado</div>';
 
-    const tieElement =
-        document.getElementById("tieCount");
+    return;
+  }
 
-    if (playerElement) {
-        playerElement.textContent = player;
+  history.forEach(result => {
+
+    const ball = document.createElement("div");
+
+    ball.classList.add("ball");
+
+    if (result === "P") {
+      ball.classList.add("p");
     }
 
-    if (bankerElement) {
-        bankerElement.textContent = banker;
+    if (result === "B") {
+      ball.classList.add("b");
     }
 
-    if (tieElement) {
-        tieElement.textContent = tie;
+    if (result === "E") {
+      ball.classList.add("e");
     }
+
+    ball.textContent = result;
+
+    box.appendChild(ball);
+  });
 }
 
-// ------------------------------------------
-// Contagem
-// ------------------------------------------
+function calculateSignal() {
 
-function countResult(result) {
+  const signal = document.getElementById("signal");
+  const confidence = document.getElementById("confidence");
 
-    return history.filter(item => item === result).length;
+  if (history.length < 5) {
+
+    signal.textContent = "AGUARDANDO";
+
+    confidence.textContent =
+      "Introduza pelo menos 5 resultados";
+
+    return;
+  }
+
+  const player = count("P");
+  const banker = count("B");
+
+  const recent = history.slice(-10);
+
+  const recentPlayer =
+    recent.filter(x => x === "P").length;
+
+  const recentBanker =
+    recent.filter(x => x === "B").length;
+
+  if (
+    recentPlayer > recentBanker &&
+    player >= banker
+  ) {
+
+    signal.textContent = "PLAYER";
+
+    confidence.textContent =
+      "Tendência estatística observada";
+
+  } else if (
+    recentBanker > recentPlayer &&
+    banker >= player
+  ) {
+
+    signal.textContent = "BANKER";
+
+    confidence.textContent =
+      "Tendência estatística observada";
+
+  } else {
+
+    signal.textContent = "EQUILÍBRIO";
+
+    confidence.textContent =
+      "Sem tendência clara";
+  }
 }
 
-// ------------------------------------------
-// Percentagens
-// ------------------------------------------
-
-function percentage(value, total) {
-
-    if (total === 0) {
-        return 0;
-    }
-
-    return Math.round((value / total) * 100);
-}
-
-// ------------------------------------------
-// Análise do sinal
-// ------------------------------------------
-
-function updateSignal() {
-
-    const signalElement =
-        document.getElementById("signal");
-
-    const confidenceElement =
-        document.getElementById("confidence");
-
-    if (!signalElement || !confidenceElement) {
-        return;
-    }
-
-    if (history.length < 5) {
-
-        signalElement.textContent = "AGUARDANDO";
-
-        confidenceElement.textContent =
-            "Registe pelo menos 5 resultados";
-
-        return;
-    }
-
-    const analysis = analyzeHistory();
-
-    signalElement.textContent =
-        analysis.signal;
-
-    confidenceElement.textContent =
-        analysis.message;
-}
-
-// ------------------------------------------
-// Motor de análise estatística
-// ------------------------------------------
-
-function analyzeHistory() {
-
-    const total = history.length;
-
-    const player = countResult("P");
-    const banker = countResult("B");
-    const tie = countResult("E");
-
-    // Últimos resultados sem empates
-    const recent = history
-        .filter(x => x !== "E")
-        .slice(-10);
-
-    if (recent.length === 0) {
-
-        return {
-            signal: "SEM SINAL",
-            message: "Não existem dados suficientes."
-        };
-    }
-
-    const recentPlayer =
-        recent.filter(x => x === "P").length;
-
-    const recentBanker =
-        recent.filter(x => x === "B").length;
-
-    const playerPercent =
-        percentage(player, total);
-
-    const bankerPercent =
-        percentage(banker, total);
-
-    const recentPlayerPercent =
-        percentage(recentPlayer, recent.length);
-
-    const recentBankerPercent =
-        percentage(recentBanker, recent.length);
-
-    // --------------------------------------
-    // Verificação de sequência
-    // --------------------------------------
-
-    const last = recent[recent.length - 1];
-
-    let streak = 1;
-
-    for (let i = recent.length - 2; i >= 0; i--) {
-
-        if (recent[i] === last) {
-            streak++;
-        } else {
-            break;
-        }
-    }
-
-    // --------------------------------------
-    // Pontuação estatística
-    // --------------------------------------
-
-    let playerScore = 0;
-    let bankerScore = 0;
-
-    // Frequência geral
-    if (playerPercent > bankerPercent) {
-        playerScore += 1;
-    }
-
-    if (bankerPercent > playerPercent) {
-        bankerScore += 1;
-    }
-
-    // Últimas 10
-    if (recentPlayerPercent > recentBankerPercent) {
-        playerScore += 2;
-    }
-
-    if (recentBankerPercent > recentPlayerPercent) {
-        bankerScore += 2;
-    }
-
-    // Tendência de sequência
-    if (last === "P" && streak >= 2) {
-        playerScore += 1;
-    }
-
-    if (last === "B" && streak >= 2) {
-        bankerScore += 1;
-    }
-
-    // --------------------------------------
-    // Resultado
-    // --------------------------------------
-
-    let signal = "SEM SINAL";
-    let confidence = 0;
-
-    if (playerScore > bankerScore) {
-
-        signal = "PLAYER";
-
-        confidence =
-            calculateConfidence(
-                playerScore,
-                bankerScore
-            );
-
-    } else if (bankerScore > playerScore) {
-
-        signal = "BANKER";
-
-        confidence =
-            calculateConfidence(
-                bankerScore,
-                playerScore
-            );
-
-    } else {
-
-        signal = "EQUILÍBRIO";
-        confidence = 50;
-    }
-
-    const message =
-        `Tendência: ${signal} • Confiança estatística: ${confidence}%`;
-
-    return {
-        signal,
-        message,
-        player,
-        banker,
-        tie
-    };
-}
-
-// ------------------------------------------
-// Confiança estatística
-// ------------------------------------------
-
-function calculateConfidence(mainScore, otherScore) {
-
-    const difference =
-        mainScore - otherScore;
-
-    let confidence =
-        50 + (difference * 8);
-
-    if (confidence > 75) {
-        confidence = 75;
-    }
-
-    if (confidence < 50) {
-        confidence = 50;
-    }
-
-    return confidence;
-}
-
-// ------------------------------------------
-// LocalStorage
-// ------------------------------------------
-
-function saveHistory() {
-
-    try {
-
-        localStorage.setItem(
-            "bacbo_history",
-            JSON.stringify(history)
-        );
-
-    } catch (error) {
-
-        console.log(
-            "Não foi possível guardar o histórico."
-        );
-    }
-}
-
-// ------------------------------------------
-// Carregar histórico
-// ------------------------------------------
-
-function loadHistory() {
-
-    try {
-
-        const saved =
-            localStorage.getItem("bacbo_history");
-
-        if (!saved) {
-            history = [];
-            return;
-        }
-
-        const parsed =
-            JSON.parse(saved);
-
-        if (Array.isArray(parsed)) {
-
-            history = parsed.filter(
-                item =>
-                    item === "P" ||
-                    item === "B" ||
-                    item === "E"
-            );
-
-        } else {
-
-            history = [];
-        }
-
-    } catch (error) {
-
-        history = [];
-    }
-}
-
-// ------------------------------------------
-// Exportar histórico
-// ------------------------------------------
-
-function exportHistory() {
-
-    const data =
-        JSON.stringify(history, null, 2);
-
-    const blob =
-        new Blob(
-            [data],
-            { type: "application/json" }
-        );
-
-    const url =
-        URL.createObjectURL(blob);
-
-    const link =
-        document.createElement("a");
-
-    link.href = url;
-    link.download = "bacbo-historico.json";
-
-    link.click();
-
-    URL.revokeObjectURL(url);
-}
-
-// ------------------------------------------
-// Funções globais
-// ------------------------------------------
-
-window.addResult = addResult;
-window.undoResult = undoResult;
-window.clearHistory = clearHistory;
-window.exportHistory = exportHistory;
+update();
