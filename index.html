@@ -2,11 +2,8 @@
 <html lang="pt-PT">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-  <meta name="theme-color" content="#0b1020">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d19">
 
   <title>Bac Bo Signal</title>
 
@@ -21,7 +18,7 @@
     body {
       font-family: Arial, sans-serif;
       background: #080d19;
-      color: #fff;
+      color: #ffffff;
       min-height: 100vh;
     }
 
@@ -34,45 +31,43 @@
 
     header {
       text-align: center;
-      padding: 15px 5px 20px;
+      padding: 18px 0;
     }
 
     header h1 {
       font-size: 27px;
-      margin-bottom: 6px;
     }
 
     header p {
-      color: #8e9bb5;
+      color: #8793aa;
+      margin-top: 6px;
       font-size: 13px;
     }
 
     .signal-box {
-      background: linear-gradient(145deg, #121a2d, #0e1526);
-      border: 1px solid #263452;
+      background: #111a2d;
+      border: 1px solid #293754;
       border-radius: 18px;
-      padding: 20px;
+      padding: 22px;
       text-align: center;
       margin-bottom: 15px;
-      box-shadow: 0 8px 25px rgba(0,0,0,.25);
     }
 
     .signal-label {
-      color: #8e9bb5;
+      color: #8793aa;
       font-size: 12px;
-      text-transform: uppercase;
       letter-spacing: 1px;
     }
 
     #signal {
-      font-size: 38px;
+      font-size: 36px;
       font-weight: bold;
-      margin: 8px 0;
+      margin: 10px 0;
     }
 
     #confidence {
-      color: #aeb9cf;
-      font-size: 14px;
+      color: #aeb8cb;
+      font-size: 13px;
     }
 
     .buttons {
@@ -82,19 +77,17 @@
       margin-bottom: 15px;
     }
 
-    .result-btn {
+    button {
       border: 0;
-      border-radius: 15px;
-      min-height: 70px;
-      color: white;
-      font-size: 27px;
+      color: #ffffff;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 5px 12px rgba(0,0,0,.25);
     }
 
-    .result-btn:active {
-      transform: scale(.96);
+    .result {
+      height: 70px;
+      border-radius: 15px;
+      font-size: 28px;
     }
 
     .player {
@@ -106,7 +99,7 @@
     }
 
     .tie {
-      background: #757575;
+      background: #777777;
     }
 
     .card {
@@ -117,17 +110,15 @@
       margin-bottom: 15px;
     }
 
-    .card-title {
-      font-size: 16px;
+    .title {
       font-weight: bold;
-      margin-bottom: 13px;
+      margin-bottom: 14px;
     }
 
     .history {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      min-height: 45px;
     }
 
     .ball {
@@ -137,10 +128,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
       font-weight: bold;
-      font-size: 14px;
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,.12);
     }
 
     .ball.p {
@@ -152,7 +140,15 @@
     }
 
     .ball.e {
-      background: #757575;
+      background: #777777;
+    }
+
+    .empty {
+      color: #68758e;
+      font-size: 13px;
+      width: 100%;
+      text-align: center;
+      padding: 10px;
     }
 
     .stats {
@@ -162,21 +158,21 @@
     }
 
     .stat {
-      background: #151f34;
+      background: #172239;
       border-radius: 12px;
-      padding: 13px 5px;
       text-align: center;
+      padding: 13px 5px;
     }
 
-    .stat-value {
+    .number {
       font-size: 22px;
       font-weight: bold;
-      margin-bottom: 4px;
     }
 
-    .stat-name {
-      color: #8e9bb5;
-      font-size: 11px;
+    .label {
+      color: #8793aa;
+      font-size: 10px;
+      margin-top: 4px;
     }
 
     .controls {
@@ -185,170 +181,67 @@
       gap: 10px;
     }
 
-    .control-btn {
-      background: #1a2439;
-      color: white;
-      border: 1px solid #30405f;
+    .control {
+      background: #1b263c;
+      border: 1px solid #30405e;
       border-radius: 12px;
       padding: 13px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .control-btn:active {
-      transform: scale(.98);
-    }
-
-    .empty {
-      color: #68758e;
-      font-size: 13px;
-      text-align: center;
-      width: 100%;
-      padding: 12px 0;
     }
 
     .status {
       text-align: center;
-      color: #7887a3;
+      color: #65738c;
       font-size: 11px;
-      margin-top: 18px;
-      padding-bottom: 10px;
-    }
-
-    @media (max-width: 360px) {
-      .app {
-        padding: 10px;
-      }
-
-      header h1 {
-        font-size: 23px;
-      }
-
-      .result-btn {
-        min-height: 62px;
-      }
-
-      .ball {
-        width: 34px;
-        height: 34px;
-      }
+      padding: 5px 0 15px;
     }
   </style>
 </head>
 
 <body>
 
-<div class="app">
+  <div class="app">
 
-  <header>
-    <h1>🎲 BAC BO SIGNAL</h1>
-    <p>Análise estatística das jogadas</p>
-  </header>
+    <header>
+      <h1>🎲 BAC BO SIGNAL</h1>
+      <p>Análise estatística</p>
+    </header>
 
-  <section class="signal-box">
-    <div class="signal-label">Sinal atual</div>
+    <section class="signal-box">
+      <div class="signal-label">SINAL ATUAL</div>
 
-    <div id="signal">AGUARDANDO</div>
+      <div id="signal">AGUARDANDO</div>
 
-    <div id="confidence">
-      Introduza os resultados para iniciar a análise
-    </div>
-  </section>
-
-  <section class="buttons">
-
-    <button
-      class="result-btn player"
-      onclick="addResult('P')">
-      P
-    </button>
-
-    <button
-      class="result-btn banker"
-      onclick="addResult('B')">
-      B
-    </button>
-
-    <button
-      class="result-btn tie"
-      onclick="addResult('E')">
-      E
-    </button>
-
-  </section>
-
-  <section class="card">
-
-    <div class="card-title">
-      Histórico
-    </div>
-
-    <div id="history" class="history">
-      <div class="empty">
-        Nenhum resultado registado
+      <div id="confidence">
+        Introduza os resultados abaixo
       </div>
-    </div>
+    </section>
 
-  </section>
-
-  <section class="card">
-
-    <div class="card-title">
-      Estatísticas
-    </div>
-
-    <div class="stats">
-
-      <div class="stat">
-        <div id="playerCount" class="stat-value">0</div>
-        <div class="stat-name">PLAYER</div>
-      </div>
-
-      <div class="stat">
-        <div id="bankerCount" class="stat-value">0</div>
-        <div class="stat-name">BANKER</div>
-      </div>
-
-      <div class="stat">
-        <div id="tieCount" class="stat-value">0</div>
-        <div class="stat-name">EMPATE</div>
-      </div>
-
-    </div>
-
-  </section>
-
-  <section class="card">
-
-    <div class="card-title">
-      Controlo
-    </div>
-
-    <div class="controls">
+    <section class="buttons">
 
       <button
-        class="control-btn"
-        onclick="undoResult()">
-        ↩️ Desfazer
+        class="result player"
+        onclick="addResult('P')">
+        P
       </button>
 
       <button
-        class="control-btn"
-        onclick="clearHistory()">
-        🗑️ Limpar
+        class="result banker"
+        onclick="addResult('B')">
+        B
       </button>
 
-    </div>
+      <button
+        class="result tie"
+        onclick="addResult('E')">
+        E
+      </button>
 
-  </section>
+    </section>
 
-  <div class="status">
-    Bac Bo Signal • análise estatística local
-  </div>
+    <section class="card">
 
-</div>
+      <div class="title">
+        HISTÓRICO
+      </div>
 
-<script src="app.js"></script>
-
-</body>
-  </html>
+      <div
