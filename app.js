@@ -1,132 +1,300 @@
-let history = [];
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d19">
+  <title>Bac Bo Signal</title>
 
-function addResult(result) {
-  history.push(result);
-  update();
-}
-
-function undoResult() {
-  history.pop();
-  update();
-}
-
-function clearHistory() {
-  if (confirm("Apagar todo o histórico?")) {
-    history = [];
-    update();
-  }
-}
-
-function count(value) {
-  return history.filter(x => x === value).length;
-}
-
-function update() {
-
-  document.getElementById("playerCount").textContent =
-    count("P");
-
-  document.getElementById("bankerCount").textContent =
-    count("B");
-
-  document.getElementById("tieCount").textContent =
-    count("E");
-
-  showHistory();
-  calculateSignal();
-}
-
-function showHistory() {
-
-  const box = document.getElementById("history");
-
-  box.innerHTML = "";
-
-  if (history.length === 0) {
-
-    box.innerHTML =
-      '<div class="empty">Nenhum resultado</div>';
-
-    return;
-  }
-
-  history.forEach(result => {
-
-    const ball = document.createElement("div");
-
-    ball.classList.add("ball");
-
-    if (result === "P") {
-      ball.classList.add("p");
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    if (result === "B") {
-      ball.classList.add("b");
+    body {
+      font-family: Arial, sans-serif;
+      background: #080d19;
+      color: white;
+      min-height: 100vh;
     }
 
-    if (result === "E") {
-      ball.classList.add("e");
+    .app {
+      max-width: 520px;
+      margin: auto;
+      padding: 15px;
     }
 
-    ball.textContent = result;
+    header {
+      text-align: center;
+      padding: 18px 0;
+    }
 
-    box.appendChild(ball);
-  });
-}
+    header h1 {
+      font-size: 27px;
+    }
 
-function calculateSignal() {
+    header p {
+      color: #8793aa;
+      margin-top: 6px;
+      font-size: 13px;
+    }
 
-  const signal = document.getElementById("signal");
-  const confidence = document.getElementById("confidence");
+    .signal {
+      background: #111a2d;
+      border: 1px solid #293754;
+      border-radius: 18px;
+      padding: 22px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
 
-  if (history.length < 5) {
+    .signal small {
+      color: #8793aa;
+    }
 
-    signal.textContent = "AGUARDANDO";
+    #signal {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
 
-    confidence.textContent =
-      "Introduza pelo menos 5 resultados";
+    #confidence {
+      color: #aeb8cb;
+      font-size: 13px;
+    }
 
-    return;
-  }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
 
-  const player = count("P");
-  const banker = count("B");
+    button {
+      border: 0;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-  const recent = history.slice(-10);
+    .result {
+      height: 70px;
+      border-radius: 15px;
+      font-size: 28px;
+    }
 
-  const recentPlayer =
-    recent.filter(x => x === "P").length;
+    .player {
+      background: #1976d2;
+    }
 
-  const recentBanker =
-    recent.filter(x => x === "B").length;
+    .banker {
+      background: #d32f2f;
+    }
 
-  if (
-    recentPlayer > recentBanker &&
-    player >= banker
-  ) {
+    .tie {
+      background: #777;
+    }
 
-    signal.textContent = "PLAYER";
+    .card {
+      background: #10182a;
+      border: 1px solid #24314d;
+      border-radius: 17px;
+      padding: 16px;
+      margin-bottom: 15px;
+    }
 
-    confidence.textContent =
-      "Tendência estatística observada";
+    .title {
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
 
-  } else if (
-    recentBanker > recentPlayer &&
-    banker >= player
-  ) {
+    .history {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
 
-    signal.textContent = "BANKER";
+    .ball {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
 
-    confidence.textContent =
-      "Tendência estatística observada";
+    .ball.p {
+      background: #1976d2;
+    }
 
-  } else {
+    .ball.b {
+      background: #d32f2f;
+    }
 
-    signal.textContent = "EQUILÍBRIO";
+    .ball.e {
+      background: #777;
+    }
 
-    confidence.textContent =
-      "Sem tendência clara";
-  }
-}
+    .empty {
+      color: #68758e;
+      font-size: 13px;
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+    }
 
-update();
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      background: #172239;
+      border-radius: 12px;
+      text-align: center;
+      padding: 13px 5px;
+    }
+
+    .number {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .label {
+      color: #8793aa;
+      font-size: 10px;
+      margin-top: 4px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .control {
+      background: #1b263c;
+      border: 1px solid #30405e;
+      border-radius: 12px;
+      padding: 13px;
+    }
+
+    .status {
+      text-align: center;
+      color: #65738c;
+      font-size: 11px;
+      padding: 5px 0 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <h1>🎲 BAC BO SIGNAL</h1>
+    <p>Análise estatística</p>
+  </header>
+
+  <div class="signal">
+    <small>SINAL ATUAL</small>
+
+    <div id="signal">AGUARDANDO</div>
+
+    <div id="confidence">
+      Introduza os resultados abaixo
+    </div>
+  </div>
+
+  <div class="buttons">
+
+    <button class="result player" onclick="addResult('P')">
+      P
+    </button>
+
+    <button class="result banker" onclick="addResult('B')">
+      B
+    </button>
+
+    <button class="result tie" onclick="addResult('E')">
+      E
+    </button>
+
+  </div>
+
+  <div class="card">
+
+    <div class="title">
+      HISTÓRICO
+    </div>
+
+    <div id="history" class="history">
+      <div class="empty">
+        Nenhum resultado
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="title">
+      ESTATÍSTICAS
+    </div>
+
+    <div class="stats">
+
+      <div class="stat">
+        <div id="playerCount" class="number">0</div>
+        <div class="label">PLAYER</div>
+      </div>
+
+      <div class="stat">
+        <div id="bankerCount" class="number">0</div>
+        <div class="label">BANKER</div>
+      </div>
+
+      <div class="stat">
+        <div id="tieCount" class="number">0</div>
+        <div class="label">EMPATE</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="title">
+      CONTROLO
+    </div>
+
+    <div class="controls">
+
+      <button class="control" onclick="undoResult()">
+        ↩️ Desfazer
+      </button>
+
+      <button class="control" onclick="clearHistory()">
+        🗑️ Limpar
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="status">
+    Bac Bo Signal • versão nova
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
